@@ -1,0 +1,35 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@safetyos/ui": ["../../packages/ui/src"],
+      "@safetyos/ui/*": ["../../packages/ui/src/*"],
+      "@safetyos/design-tokens": ["../../packages/design-tokens/src"],
+      "@safetyos/design-tokens/*": ["../../packages/design-tokens/src/*"],
+      "@safetyos/shared-types": ["../../packages/shared-types/src"],
+      "@safetyos/shared-types/*": ["../../packages/shared-types/src/*"]
+    },
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

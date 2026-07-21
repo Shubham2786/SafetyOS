@@ -1,0 +1,88 @@
+/**
+ * Halo Design System — Global CSS Variables (Tokens)
+ * Compiled for light and dark modes
+ */
+
+:root {
+  /* Surface colors - Light mode defaults */
+  --surface-canvas: #FCFCFD;
+  --surface-sunken: #F6F7F9;
+  --surface-raised: #FFFFFF;
+  --surface-overlay: #FFFFFF;
+  --surface-hover: #EEF0F3;
+  --surface-active: #DDE1E7;
+
+  /* Text colors */
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #4B5563;
+  --text-disabled: #9AA3AF;
+  --text-on-accent: #FFFFFF;
+
+  /* Border colors */
+  --border-subtle: #EEF0F3;
+  --border-default: #C4CAD3;
+  --border-strong: #9AA3AF;
+  --border-focus: #06B6D4;
+
+  /* Intent colors */
+  --intent-info: #0284C7;
+  --intent-info-bg: #E0F2FE;
+  --intent-success: #16A34A;
+  --intent-success-bg: #DCFCE7;
+  --intent-warning: #D97706;
+  --intent-warning-bg: #FEF3C7;
+  --intent-critical: #DC2626;
+  --intent-critical-bg: #FEE2E2;
+  --intent-catastrophic: #7F1D1D;
+  --intent-catastrophic-bg: #450A0A;
+
+  /* Brand Halo */
+  --brand-halo: #06B6D4;
+  --brand-halo-glow: rgba(6, 182, 212, 0.4);
+
+  /* Spacing */
+  --space-0: 0px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Radii */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 9999px;
+
+  /* Durations & Easings */
+  --duration-fast: 120ms;
+  --duration-moderate: 240ms;
+  --duration-slow: 360ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-entrance: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.dark {
+  --surface-canvas: #0A0B0D;
+  --surface-sunken: #050609;
+  --surface-raised: #101216;
+  --surface-overlay: #181B21;
+  --surface-hover: #22262E;
+  --surface-active: #2F343D;
+
+  --text-primary: #E4E7ED;
+  --text-secondary: #8A93A1;
+  --text-tertiary: #565E6B;
+  --text-disabled: #2F343D;
+  --text-on-accent: #FFFFFF;
+
+  --border-subtle: #181B21;
+  --border-default: #22262E;
+  --border-strong: #2F343D;
+  --border-focus: #00F0FF;
+}

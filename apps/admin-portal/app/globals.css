@@ -1,0 +1,13 @@
+@import "@safetyos/design-tokens/css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: var(--surface-canvas);
+    color: var(--text-primary);
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+  }
+}
