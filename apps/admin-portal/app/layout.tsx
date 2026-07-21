@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@safetyos/design-tokens/css';
 import './globals.css';
 
 export const metadata: Metadata = {

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@safetyos/design-tokens/css';
 import './globals.css';
 import { AppShell } from '../components/layout/app-shell';
 
