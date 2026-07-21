@@ -48,3 +48,8 @@ Thumbs.db
 
 # Turbo cache
 .turbo/
+
+# Documentation folder
+documentations/
+
+
