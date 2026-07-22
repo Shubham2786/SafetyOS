@@ -9,7 +9,14 @@ import json
 
 class AgentOrchestrator:
     def __init__(self):
-        pass
+        """Initialize the orchestrator.
+        Currently sets up a basic agent registry and logger.
+        """
+        import logging
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("AgentOrchestrator instantiated")
+        # Placeholder for future agent registration / DI
+        self.agents = []
 
     async def stream_reasoning_trace(self, prompt: str, tenant_id: str, site_id: str) -> AsyncGenerator[str, None]:
         """
