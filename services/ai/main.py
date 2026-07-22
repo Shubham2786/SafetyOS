@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
+from services.ai.security.opa_middleware import OPAMiddleware
 import logging
 import uuid
 
@@ -36,6 +37,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(OPAMiddleware)
 
 # Initialize Core Platform Services
 memory_manager = MultiTierAgentMemoryManager()

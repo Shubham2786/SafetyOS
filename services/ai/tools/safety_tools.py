@@ -49,27 +49,34 @@ class SafetyOSAgentTools:
 
     @staticmethod
     async def evaluate_opa_permit_policy(tenant_id: str, site_id: str, permit_type: str, zone_id: str) -> ToolCallResult:
-        """
-        Calls Open Policy Agent (OPA) engine to evaluate permit conflicts and zero-trust policies.
-        """
-        start_time = time.time()
-        logger.info(f"Evaluating OPA Permit Policy for type '{permit_type}' in zone '{zone_id}'")
+        """Delegate OPA policy evaluation to OPAMiddleware.
 
-        mock_opa_output = {
-            "allowed": True,
-            "policy_eval_ms": 1.4,
-            "conflicting_permits": [],
-            "required_mitigations": ["Dual-signoff Required", "Continuous Gas Monitor Active"],
-            "opa_rule": "safetyos.policy.ptw.hot_work_confined_space_check"
+        Constructs a payload and utilizes the middleware's ``evaluate_policy`` method to
+        obtain an allow/deny decision. Returns a ``ToolCallResult`` compatible with the
+        existing tooling contract.
+        """
+        from services.ai.agents.governance_agent import governance_agent
+        start_time = time.time()
+        logger.info(f"Evaluating OPA Permit Policy via GovernanceAgent for type '{permit_type}' in zone '{zone_id}'")
+        payload = {
+            "tenant_id": tenant_id,
+            "site_id": site_id,
+            "permit_type": permit_type,
+            "zone_id": zone_id,
         }
+        result = await governance_agent.check_action_opa("evaluate_opa_permit_policy", payload)
+        allowed = result.get("allowed", False)
         elapsed = (time.time() - start_time) * 1000
         return ToolCallResult(
             tool_name="evaluate_opa_permit_policy",
-            arguments={"tenant_id": tenant_id, "site_id": site_id, "permit_type": permit_type, "zone_id": zone_id},
-            status="SUCCESS",
-            output=mock_opa_output,
+            arguments=payload,
+            status="SUCCESS" if allowed else "FAILURE",
+            output=result,
             execution_time_ms=round(elapsed, 2)
         )
+
+
+
 
     @staticmethod
     async def get_telemetry_time_series(equipment_id: str, duration_minutes: int = 60) -> ToolCallResult:
