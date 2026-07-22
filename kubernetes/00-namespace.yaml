@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: safetyos
+  labels:
+    name: safetyos
+    app.kubernetes.io/part-of: safetyos-platform

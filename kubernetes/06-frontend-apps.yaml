@@ -1,0 +1,239 @@
+# ==========================================
+# Dashboard Web Console (Next.js 15, Port 3000)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-web
+  namespace: safetyos
+  labels:
+    app: dashboard-web
+    app.kubernetes.io/part-of: safetyos-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dashboard-web
+  template:
+    metadata:
+      labels:
+        app: dashboard-web
+    spec:
+      containers:
+        - name: dashboard-web
+          image: safetyos/dashboard-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: safetyos-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-web-service
+  namespace: safetyos
+  labels:
+    app: dashboard-web
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  selector:
+    app: dashboard-web
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dashboard-web-hpa
+  namespace: safetyos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dashboard-web
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# ==========================================
+# Admin & Governance Portal (Next.js 15, Port 3001)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-portal
+  namespace: safetyos
+  labels:
+    app: admin-portal
+    app.kubernetes.io/part-of: safetyos-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-portal
+  template:
+    metadata:
+      labels:
+        app: admin-portal
+    spec:
+      containers:
+        - name: admin-portal
+          image: safetyos/admin-portal:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3001
+              name: http
+          envFrom:
+            - configMapRef:
+                name: safetyos-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "800m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-portal-service
+  namespace: safetyos
+  labels:
+    app: admin-portal
+spec:
+  ports:
+    - port: 3001
+      targetPort: 3001
+      name: http
+  selector:
+    app: admin-portal
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: admin-portal-hpa
+  namespace: safetyos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: admin-portal
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# ==========================================
+# AI Copilot Workspace (Next.js 15, Port 3002)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-copilot
+  namespace: safetyos
+  labels:
+    app: ai-copilot
+    app.kubernetes.io/part-of: safetyos-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-copilot
+  template:
+    metadata:
+      labels:
+        app: ai-copilot
+    spec:
+      containers:
+        - name: ai-copilot
+          image: safetyos/ai-copilot:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3002
+              name: http
+          envFrom:
+            - configMapRef:
+                name: safetyos-config
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-copilot-service
+  namespace: safetyos
+  labels:
+    app: ai-copilot
+spec:
+  ports:
+    - port: 3002
+      targetPort: 3002
+      name: http
+  selector:
+    app: ai-copilot
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-copilot-hpa
+  namespace: safetyos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-copilot
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80

@@ -1,0 +1,177 @@
+# ==========================================
+# Go REST BFF Gateway Deployment, Service & HPA
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bff-gateway
+  namespace: safetyos
+  labels:
+    app: bff-gateway
+    app.kubernetes.io/part-of: safetyos-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bff-gateway
+  template:
+    metadata:
+      labels:
+        app: bff-gateway
+    spec:
+      serviceAccountName: safetyos-sa
+      containers:
+        - name: bff-gateway
+          image: safetyos/bff-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: safetyos-config
+            - secretRef:
+                name: safetyos-secrets
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bff-service
+  namespace: safetyos
+  labels:
+    app: bff-gateway
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+  selector:
+    app: bff-gateway
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bff-gateway-hpa
+  namespace: safetyos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bff-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+---
+# ==========================================
+# Python FastAPI AI Microservice Deployment, Service & HPA
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: safetyos
+  labels:
+    app: ai-service
+    app.kubernetes.io/part-of: safetyos-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+    spec:
+      serviceAccountName: safetyos-sa
+      containers:
+        - name: ai-service
+          image: safetyos/ai-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: safetyos-config
+            - secretRef:
+                name: safetyos-secrets
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2500m"
+              memory: "4Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: safetyos
+  labels:
+    app: ai-service
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: ai-service
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-service-hpa
+  namespace: safetyos
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-service
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
