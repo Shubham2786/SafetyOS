@@ -249,21 +249,6 @@ kubectl get all,hpa,ingress -n safetyos
 
 ---
 
-## 📑 Documentation & Specifications
-
-The repository includes comprehensive, production-ready specifications inside [`documentations/`](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations):
-
-| Specification Document | Focus Area |
-| :--- | :--- |
-| 📄 [API Specification](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/API_Specification.md) | Full OpenAPI endpoint specs for Go BFF & FastAPI AI Core |
-| 📄 [Backend Service Spec](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/Backend_Service_Specification.md) | Go microservice design, worker pools & gRPC interfaces |
-| 📄 [Database Specification](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/Database_Specification.md) | TimescaleDB hypertable schema, Neo4j Graph Cypher queries & Qdrant collections |
-| 📄 [Design System Spec](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/Design_System.md) | Halo Design Language tokens, ISA-101 colors & typography |
-| 📄 [Frontend Architecture](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/Frontend_Architecture.md) | Next.js 15 App Router setup, Zustand state management & SSE handlers |
-| 📄 [Hackathon Solution Document](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/SafetyOS_Hackathon_Solution_Document.md) | Technical Deep Dive into Multi-Agent AI & Graph RAG Architecture |
-| 📄 [Master Feature Specifications](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/documentations/Master%20Feature%20Specifications.md) | Complete product requirement matrix & functional specs |
-
----
 
 ## 🔒 Security & Compliance
 
