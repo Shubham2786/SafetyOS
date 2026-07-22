@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from services.ai.security.opa_middleware import OPAMiddleware
 import logging
+import os
+
 import uuid
 
 from config import settings
@@ -18,8 +20,11 @@ from schema.domain import AgentState, SafetyContext, AgentResponse
 from memory.manager import MultiTierAgentMemoryManager
 from rag.hybrid_retriever import EnterpriseHybridRetriever
 from rag.reranker import CrossEncoderReranker
+from services.ai.messaging.kafka_producer import producer as kafka_producer
+from services.ai.rag.rag_manager import rag_manager
 from orchestrator.graph_builder import MultiAgentGraphOrchestrator
-from orchestrator.halo_streamer import HaloOrbStreamer
+from services.ai.graph_endpoint import router as graph_router
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("safetyos.ai.main")
@@ -38,7 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(OPAMiddleware)
-
+app.include_router(graph_router, prefix="/api/v1/ai/graph")  # Register Graph API routes
 # Initialize Core Platform Services
 memory_manager = MultiTierAgentMemoryManager()
 retriever = EnterpriseHybridRetriever()
@@ -108,7 +113,12 @@ async def copilot_chat(request: ChatQueryRequest) -> AgentResponse:
     )
     response = await orchestrator.execute_graph(state)
     await memory_manager.add_conversation_turn(state.conversation_id, "user", request.prompt)
-    await memory_manager.add_conversation_turn(state.conversation_id, "assistant", response.response_text)
+    # Emit telemetry event to Kafka for observability
+    kafka_producer.send(
+        topic=os.getenv("KAFKA_TOPIC_ALERTS", "safetyos.alerts"),
+        key=state.conversation_id,
+        value={"agent": "copilot", "response": response.response_text}
+    )
     return response
 
 
@@ -168,11 +178,9 @@ async def hybrid_search(request: HybridSearchRequest):
     """
     Enterprise RAG Endpoint: Hybrid Dense Vector + Neo4j Graph + BM25 search.
     """
-    raw_citations = await retriever.search(
+    raw_citations = rag_manager.similarity_search(
         query=request.query,
-        site_id=request.site_id,
-        zone_id=request.zone_id,
-        top_k=request.top_k * 2
+        top_k=request.top_k
     )
     reranked = await reranker.rerank(request.query, raw_citations, top_n=request.top_k)
     return {
