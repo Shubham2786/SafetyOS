@@ -8,6 +8,7 @@ from schema.agent_types import AgentID, ReasoningMode, RiskLevel
 from schema.domain import AgentState, Citation, ToolCallResult, HumanApprovalRequest
 from agents.base_agent import BaseSafetyAgent
 from tools.safety_tools import SafetyOSAgentTools
+from services.ai.llm_client import client as llm_client
 
 
 class PermitIntelligenceAgent(BaseSafetyAgent):

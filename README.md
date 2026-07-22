@@ -74,7 +74,7 @@ Industrial plants operate in high-hazard environments where uncoordinated mainte
 1. ⚡ **Zero-Trust Permit-to-Work (PTW)**: Microsecond spatial conflict detection using Open Policy Agent (OPA) rules to prevent conflicting hot work, confined space entry, and high-voltage maintenance in overlapping work zones.
 2. 🔒 **Digital Lockout/Tagout (LOTO)**: Knowledge Graph lineage tracing across physical valves, breakers, and piping to mandate zero-energy verification before site access is granted.
 3. 👁️ **Edge Computer Vision & Telemetry**: Sub-50ms event detection for PPE non-compliance, hazardous gas excursions, and worker fall detection fed via high-throughput Apache Kafka pipelines.
-4. 🤖 **Halo Multi-Agent AI Core**: Autonomous AI agents powered by FastAPI, Qdrant Vector RAG, and Neo4j Graph RAG. Provides real-time reasoning via a 9-state interactive **Halo Orb** Server-Sent Events (SSE) stream.
+4. 🤖 **Halo Multi-Agent AI Core & Governance**: Architecture featuring **14 specialized AI agents** (Permit Intelligence, Digital LOTO, Emergency Response, Governance, Compliance, Incident Investigation, etc.) governed by in-process **OPA policy middleware**, Cross-Encoder Reranking RAG, and Neo4j Graph RAG. Delivers real-time explainable reasoning via a 9-state interactive **Halo Orb** SSE stream.
 5. 📊 **ISA-101 Industrial Control Room Console**: Dark-mode, low-glare, grayscale-first UI built with React 19, Next.js 15, and TailwindCSS designed specifically for mission-critical industrial operators.
 6. ⚡ **Multi-Database Data Mesh**: Hybrid persistence layer leveraging **TimescaleDB** (metrics & time-series), **Neo4j** (knowledge graph), **Qdrant** (vector SOP search), and **Redis** (caching & pub/sub).
 
@@ -134,7 +134,14 @@ SafetyOS/
 │   └── 🐍 ai/                    # Python 3.11 (FastAPI) Multi-Agent AI & RAG Engine (Port 8000)
 ├── 📁 packages/
 │   ├── 🎨 design-tokens/        # Halo Design System Tokens (Colors, ISA-101 Grayscale, Statuses)
-│   ├── 🧩 ui/                   # Shared React 19 UI Component Library (TailwindCSS, Framer Motion)
+│      - name: Build Docker images
+        run: |
+          docker compose -f docker-compose.yml build
+
+      - name: Build CV Docker image
+        run: |
+          cd services/cv
+          docker build -t services_cv:latest .brary (TailwindCSS, Framer Motion)
 │   └── 📐 shared-types/         # TypeScript Domain Types (Digital Twins, PTW, Telemetry, LOTO)
 ├── 📁 kubernetes/               # Production Kubernetes Manifests (Deployments, HPAs, Ingress, RBAC, Data Stores)
 ├── 📁 documentations/            # Technical Architecture, API Specs, Database & Solution Reports
@@ -166,14 +173,6 @@ SafetyOS/
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-Ensure you have the following installed on your machine:
-- **Node.js**: `>= 20.0.0`
-- **pnpm**: `>= 9.0.0` (`npm i -g pnpm`)
-- **Docker & Docker Compose**: For local infrastructure databases
-- **Kubectl & Kustomize**: *(Optional, for Kubernetes cluster deployment)*
-- **Go**: `>= 1.22` *(for running `services/bff` natively)*
-- **Python**: `>= 3.11` *(for running `services/ai` natively)*
 
 ---
 
@@ -233,13 +232,6 @@ uvicorn main:app --reload --port 8000
 
 SafetyOS includes a production-ready Kubernetes setup under [`kubernetes/`](file:///c:/Users/HP/Downloads/COMPUTER/SafetyOS/kubernetes).
 
-To deploy the entire platform (Namespace, RBAC, ConfigMaps, Secrets, Databases, Microservices, Web Apps, HPAs, and Ingress) to a Kubernetes cluster (EKS, GKE, AKS, or Minikube) with a single command:
-
-```bash
-# Apply all manifests using Kustomize
-kubectl apply -k kubernetes/
-```
-
 To verify the status of deployed workloads:
 
 ```bash
@@ -250,11 +242,22 @@ kubectl get all,hpa,ingress -n safetyos
 ---
 
 
+---
+
 ## 🔒 Security & Compliance
 
-- **Zero-Trust Access Control**: OPA Policy files enforce role-based and spatial-based access controls across all API routes.
+- **Zero-Trust OPA Governance Engine**: In-process `OPAMiddleware` and `GovernanceAgent` enforce static guardrails (blocking forbidden actions like actuation or SIS override) and evaluate dynamic policies.
 - **ISA-101 Ergonomic Standard**: Designed to eliminate operator fatigue with low-contrast dark themes and high-visibility status indicators.
 - **Data Privacy**: Telemetry streams are processed on-premise at the edge with zero external cloud dependencies for raw video feeds.
+
+---
+
+## 🆕 New Components
+
+- **Computer Vision (CV) Service** – FastAPI microservice exposing `/detect` for image analysis. Dockerfile located at `services/cv/Dockerfile`. Health‑check available at `/healthz`.
+- **BFF CV Proxy Handler** – Go Gin handler (`cv_handler.go`) that proxies `POST /api/v1/cv/detect` to the CV service using the `CV_SERVICE_URL` environment variable. The route is registered under the API v1 router and protected by JWT middleware.
+- **Environment Variables** – Added `CV_SERVICE_URL` and `KAFKA_TOPIC_ALERTS` to `.env.example` for configuring the CV endpoint and Kafka alert topic.
+- **Unit Tests** – Added comprehensive tests for the LLM client, RAG manager, and Neo4j client under `services/ai/tests/`.
 
 ---
 
@@ -263,6 +266,8 @@ kubectl get all,hpa,ingress -n safetyos
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
+
+
 
 <div align="center">
 

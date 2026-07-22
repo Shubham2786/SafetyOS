@@ -53,7 +53,7 @@ class OPAMiddleware(BaseHTTPMiddleware):
             try:
                 resp = await self.client.post(self.opa_url, json=opa_input, timeout=2.0)
                 resp.raise_for_status()
-                decision = resp.json().get("result", {}).get("allow", True)
+                decision = resp.json().get("result", {}).get("allow", False)
             except Exception as exc:
                 # If OPA is unavailable, deny by default for safety.
                 logger.warning("OPA evaluation failed (%s); defaulting to deny", exc)
