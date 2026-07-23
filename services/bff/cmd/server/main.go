@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/safetyos/services/bff/internal/handlers"
@@ -18,20 +19,34 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "dev_super_secret_jwt_key_safetyos_2026_change_in_prod"
+		log.Fatalf("JWT_SECRET environment variable is required")
 	}
 
 	r := gin.Default()
 
-	// CORS middleware
+	// CORS middleware – restrict origins via ALLOWED_ORIGINS env var
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		allowedOrigins = "http://localhost:3000" // default dev origin
+	}
+	origins := strings.Split(allowedOrigins, ",")
 	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := c.Request.Header.Get("Origin")
+		allowed := false
+		for _, o := range origins {
+			if strings.TrimSpace(o) == origin {
+				allowed = true
+				break
+			}
+		}
+		if allowed {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
-
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(24)
+			c.AbortWithStatus(204)
 			return
 		}
 		c.Next()
@@ -46,6 +61,7 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		permitHandler := handlers.NewPermitHandler()
+		cvHandler := handlers.NewCVHandler()
 		
 		// Protected routes
 		protected := v1.Group("")
@@ -53,6 +69,7 @@ func main() {
 		{
 			protected.GET("/permits", permitHandler.ListPermits)
 			protected.POST("/permits", permitHandler.CreatePermit)
+			v1.POST("/cv/detect", cvHandler.ProxyDetect)
 		}
 	}
 
